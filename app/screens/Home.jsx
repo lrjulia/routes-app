@@ -9,12 +9,17 @@ const Servicos = ({navigation}) => {
   return (
     <View style={servicos.container}>
       <TouchableOpacity style={servicos.button} onPress={() => navigation.push('Drivers')} >
-        <MaterialCommunityIcons name="account" size={50} style={servicos.icon} />
+        <MaterialCommunityIcons name="motorbike" size={40} style={servicos.icon} />
         <Text style={servicos.buttonText}>Motoristas</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={servicos.button} onPress={() => navigation.navigate('Map')} >
-        <MaterialCommunityIcons name="package" size={50} style={servicos.icon} />
+      <TouchableOpacity style={servicos.button} onPress={() => navigation.push('Drivers')} >
+        <MaterialCommunityIcons name="account" size={40} style={servicos.icon} />
+        <Text style={servicos.buttonText}>Clientes</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={servicos.button} onPress={() => navigation.navigate('Deliveries')} >
+        <MaterialCommunityIcons name="package" size={40} style={servicos.icon} />
         <Text style={servicos.buttonText}>Entregas</Text>
       </TouchableOpacity>
     </View>
@@ -66,7 +71,6 @@ const Home = ({ navigation }) => {
 const home = StyleSheet.create({
   container: {
     display: 'flex',
-    width: '100%',
     height: '100%',
     padding: 10,
   },
@@ -79,18 +83,19 @@ const home = StyleSheet.create({
 
 const servicos = StyleSheet.create({
   container: {
-    display: 'flex',
+    display: 'block',
     gap: 10,
-    flexDirection: 'row',
     alignItems: 'center',
     padding: 10,
   },
   button: {
-    flex: 1,
+    display: 'flex',
+    flexDirection: 'row',
+    alignSelf: 'stretch',
     backgroundColor: 'rgba(51, 164, 111, .1)',
     padding: 30,
     borderRadius: 10,
-    justifyContent: 'center',
+    justifyContent: 'space-around',
   },
   buttonText: {
     color: 'black',
@@ -127,7 +132,7 @@ const entregas = StyleSheet.create({
   icon: {
     textAlign: 'left',
     color: 'rgba(51, 164, 111, 1)',
-    borderColor: 'black',
+    borderColor: '#ccc',
     borderWidth: 1,
     borderRadius: 10,
     padding: 5,

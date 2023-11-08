@@ -3,7 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import Home from '../screens/Home';
 import Map from '../screens/Map';
-import Drivers from '../screens/Drivers';
+import Profile from '../screens/Profile';
 
 const Tab = createBottomTabNavigator();
 
@@ -24,28 +24,28 @@ function TabNavigator() {
         }}
       />
       <Tab.Screen
-        name="Drivers"
-        component={Drivers}
-        options={{
-          tabBarLabel: 'Drivers',
-          tabBarLabelStyle: {
-            color: '#006a57'
-          },
-          tabBarIcon: () => (
-            <Ionicons name="person" size={20} color={'#006a57'} />
-          ),
-        }}
-      />
-      <Tab.Screen
         name="Map"
         component={Map}
         options={{
-          tabBarLabel: 'Map',
+          tabBarLabel: 'Mapa',
           tabBarLabelStyle: {
             color: '#006a57'
           },
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="map" size={20} color={'#006a57'} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Profile"
+        component={Profile}
+        options={{
+          tabBarLabel: 'Profile',
+          tabBarLabelStyle: {
+            color: '#006a57'
+          },
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="person" size={20} color={'#006a57'} />
           ),
         }}
       />

@@ -7,6 +7,10 @@ import { FIREBASE_AUTH } from './config/firebaseConfig';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import TabNavigator from './app/components/TabNavigator';
 import Drivers from './app/screens/Drivers';
+import Deliveries from './app/screens/Deliveries';
+import { TouchableOpacity, Text } from 'react-native';
+import AddItemForm from './app/components/AddItemForm';
+
 
 const Stack = createNativeStackNavigator();
 
@@ -38,6 +42,22 @@ export default function App() {
         )}
 
       <Stack.Screen name="Drivers" component={Drivers} options={{ tabBarButton: false, title: "Motoristas" }} />
+      <Stack.Screen name="AddItemForm" component={AddItemForm} options={{ tabBarButton: false, title: "Adicionar" }} />
+      <Stack.Screen 
+        name="Deliveries" 
+        component={Deliveries}
+        options={({ navigation }) => ({
+          title: 'Entregas',
+          headerRight: () => (
+            <TouchableOpacity
+              onPress={() => navigation.navigate('AddItemForm')}
+              style={{ marginRight: 15 }}
+            >
+              <Text style={{fontSize: 22, fontWeight: 'bold', color: '#006a57'}}>+</Text>
+            </TouchableOpacity>
+          ),
+        })}
+      />
 
       </Stack.Navigator>
     </NavigationContainer>

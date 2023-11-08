@@ -1,5 +1,5 @@
 import React, {useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { FIREBASE_AUTH } from '../../config/firebaseConfig';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 
@@ -38,8 +38,15 @@ const Login = () => {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.header}>ROUTES APP</Text>
-
+            <Image 
+                source={require('../../assets/logo2.png')} 
+                style={{
+                    width: '100%',
+                    height: 80,
+                    margin: 20,
+                    resizeMode: 'contain',
+                  }}
+            />
             <TextInput
             style={styles.input}
             value={email} 
@@ -82,7 +89,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#f0fff0', // Pastel green background color
+        backgroundColor: 'white', // Pastel green background color
     },
     header: {
         fontSize: 24,
@@ -109,7 +116,7 @@ const styles = StyleSheet.create({
     signUpButton: {
         width: '80%',
         height: 40,
-        backgroundColor: '#ce5d9e', // Light green button color
+        backgroundColor: '#33a46f', // Light green button color
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: 8,
