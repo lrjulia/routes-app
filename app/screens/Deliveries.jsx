@@ -1,100 +1,169 @@
-import React, { useState } from 'react';
-import { FIREBASE_AUTH } from '../../config/firebaseConfig';
-import { ScrollView, View, TextInput, TouchableOpacity, Image, Text, StyleSheet } from 'react-native';
-import { Feather } from '@expo/vector-icons'; 
+import React, { useState, useEffect } from 'react';
+import { ScrollView, View, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { Feather } from '@expo/vector-icons';
+import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
+import { FIREBASE_DB } from '../../config/firebaseConfig';
 
-const Deliveries = () => {
-  const [searchText, setSearchText] = useState('');
-  const { image, trackingId, title, price, status } = "packageDa";
+const Deliveries = ({ navigation }) => {
+  const [deliveries, setDeliveries] = useState([]);
+
+  useEffect(() => {
+    const fetchDeliveries = async () => {
+      try {
+        const deliveriesCollection = collection(FIREBASE_DB, 'delivery');
+        const querySnapshot = await getDocs(deliveriesCollection);
+        const deliveriesData = [];
+
+        for (const doc of querySnapshot.docs) {
+          const deliveryData = { id: doc.id, ...doc.data() };
+          const customerName = await fetchCustomerName(deliveryData.customerId);
+          deliveryData.customerName = customerName; // Add customerName to the deliveryData
+          deliveriesData.push(deliveryData);
+        }
+
+        setDeliveries(deliveriesData);
+      } catch (error) {
+        console.error('Error fetching deliveries:', error);
+      }
+    };
+    fetchDeliveries();
+  }, []);
+
+  const fetchCustomerName = async (customerId) => {
+    try {
+      const customerDoc = await getDoc(doc(FIREBASE_DB, 'customer', customerId));
+      if (customerDoc.exists()) {
+        const customerData = customerDoc.data();
+        return customerData.nome;
+      } else {
+        return 'Customer Not Found';
+      }
+    } catch (err) {
+      console.error(err);
+      return 'NaN';
+    }
+  };
 
   return (
-      <ScrollView style={entregas.container}>
-        <TouchableOpacity style={entregas.button} onPress={() => navigation.push('Drivers')} >
-          <Feather name="box" size={30} style={entregas.icon} />
-          <View style={{ flex: 1, marginLeft: 10 }}>
-            <Text style={{ fontSize: 16, fontWeight: 'bold' }}>Entrega 1</Text>
-            <Text style={{ fontSize: 14, color: '#666' }}>ID: #2334936</Text>
-          </View>
+    <ScrollView style={styles.container}>
+      {deliveries.map((delivery, index) => (
+        <TouchableOpacity
+          key={delivery.id}
+          style={styles.button}
+          onPress={() => {navigation.navigate('EditDelivery', { delivery: delivery })}}
+        >
           <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 16, fontWeight: 'bold', textAlign: 'right' }}>R$ 3.000</Text>
-            <Text style={{ fontSize: 14, color: '#33a46f', textAlign: 'right' }}>Entregue</Text>
+            <Text style={{ fontSize: 16, fontWeight: 'bold' }}>
+              {delivery.customerName || 'Loading...'}
+            </Text>
+            <Text numberOfLines={1} style={{ fontSize: 14, color: '#666' }}>ID: {delivery.id}</Text>
           </View>
-        </TouchableOpacity>
-  
-        <TouchableOpacity style={entregas.button} onPress={() => navigation.push('Drivers')} >
-          <Feather name="box" size={30} style={entregas.icon} />
-          <View style={{ flex: 1, marginLeft: 10 }}>
-            <Text style={{ fontSize: 16, fontWeight: 'bold' }}>Entrega 2</Text>
-            <Text style={{ fontSize: 14, color: '#666' }}>ID: #9874358</Text>
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 16, fontWeight: 'bold', textAlign: 'right' }}>R$ 500</Text>
-            <Text style={{ fontSize: 14, color: '#F00', textAlign: 'right' }}>Pendente</Text>
-            {/* <Text style={{ fontSize: 14, color: status === 'Pending' ? '#F00' : '#0F0', marginTop: 5 }}>Status:</Text> */}
-          </View>
-        </TouchableOpacity>
+          <View>
+              <View>
+                <Text style={{ fontSize: 16, fontWeight: 'bold', textAlign: 'right', padding: 2 }}>
+                  R$ {parseFloat(delivery.valor).toFixed(2)}
+                </Text>
+              </View>
+              {delivery.status == "NAO_ENTREGUE" && (
+                <>
+                <View style={styles.naoEntregue}>
+                  <Text style={styles.naoEntregueText}>
+                    Não Entregue
+                  </Text>
+                </View>
+                </>
+              )}
 
-        <TouchableOpacity style={entregas.button} onPress={() => navigation.push('Drivers')} >
-          <Feather name="box" size={30} style={entregas.icon} />
-          <View style={{ flex: 1, marginLeft: 10 }}>
-            <Text style={{ fontSize: 16, fontWeight: 'bold' }}>Entrega 3</Text>
-            <Text style={{ fontSize: 14, color: '#666' }}>ID: #9874359</Text>
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 16, fontWeight: 'bold', textAlign: 'right' }}>R$ 100</Text>
-            <Text style={{ fontSize: 14, color: '#33a46f', textAlign: 'right' }}>Entregue</Text>
+              {delivery.status == "ENTREGUE" && (
+                <>
+                <View style={styles.entregue}>
+                  <Text style={styles.entregueText}>
+                    Entregue
+                  </Text>
+                </View>
+                </>
+              )}
+
+              {delivery.status == "CRIADA" && (
+                <>
+                <View style={styles.criada}>
+                  <Text style={styles.criadaText}>
+                    Criada
+                  </Text>
+                </View>
+                </>
+              )}
+              
           </View>
         </TouchableOpacity>
-      </ScrollView>
+      ))}
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
-    alignItems: 'center',
     backgroundColor: '#F5F5F5',
     borderRadius: 8,
     margin: 10,
     paddingHorizontal: 10,
   },
-  searchIcon: {
-    marginRight: 10,
-  },
-  input: {
-    flex: 1,
-    height: 40,
-    color: 'black',
-  },
-});
-
-const entregas = StyleSheet.create({
-  container: {
-    display: 'block',
-    padding: 10,
-  },
   button: {
-    display: 'flex',
     flexDirection: 'row',
     backgroundColor: '#fff',
-    padding: 30,
+    padding: 20,
     borderRadius: 10,
     marginBottom: 10,
-  },
-  buttonText: {
-    color: 'black',
-    fontWeight: 'bold',
-    fontSize: 16,
-    padding: 10,
+    alignItems: 'center',
   },
   icon: {
-    textAlign: 'left',
     color: 'rgba(51, 164, 111, 1)',
-    borderColor: '#ccc',
     borderWidth: 1,
     borderRadius: 10,
     padding: 5,
     marginRight: 5,
+  },
+  naoEntregue: {
+    marginTop: 10,
+    padding: 7,
+    borderRadius: 7,
+    textAlign: 'right',
+    backgroundColor: '#a63346',
+  },
+  naoEntregueText: {
+    fontSize: 14,
+    color: 'white',
+    textAlign: 'center',
+    padding: 0,
+    margin: 0,
+  },
+  entregue: {
+    marginTop: 10,
+    padding: 7,
+    borderRadius: 7,
+    textAlign: 'right',
+    backgroundColor: '#33a46f',
+  },
+  entregueText: {
+    fontSize: 14,
+    color: 'white',
+    textAlign: 'center',
+    padding: 0,
+    margin: 0,
+  },
+  criada: {
+    marginTop: 10,
+    padding: 7,
+    borderRadius: 7,
+    textAlign: 'right',
+    backgroundColor: '#c0c0c0',
+  },
+  criadaText: {
+    fontSize: 14,
+    color: 'white',
+    textAlign: 'center',
+    padding: 0,
+    margin: 0,
   },
 });
 

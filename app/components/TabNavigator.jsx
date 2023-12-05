@@ -2,7 +2,6 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import Home from '../screens/Home';
-import Map from '../screens/Map';
 import Profile from '../screens/Profile';
 
 const Tab = createBottomTabNavigator();
@@ -11,7 +10,7 @@ function TabNavigator() {
   return (
     <Tab.Navigator>
       <Tab.Screen
-        name="Home"
+        name="Início"
         component={Home}
         options={{
           tabBarLabel: 'Home',
@@ -20,19 +19,6 @@ function TabNavigator() {
           },
           tabBarIcon: () => (
             <Ionicons name="home" size={20} color={"#006a57"} />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Map"
-        component={Map}
-        options={{
-          tabBarLabel: 'Mapa',
-          tabBarLabelStyle: {
-            color: '#006a57'
-          },
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="map" size={20} color={'#006a57'} />
           ),
         }}
       />
