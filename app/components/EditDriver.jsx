@@ -103,7 +103,7 @@ const EditDriver = ({ navigation }) => {
             <Text style={styles.buttonText}>Salvar Alterações</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
-            <Text style={styles.buttonText}>Delete Customer</Text>
+            <Text style={styles.buttonText}>Excluir Motorista</Text>
         </TouchableOpacity>
       </ScrollView>
     </KeyboardAwareScrollView>

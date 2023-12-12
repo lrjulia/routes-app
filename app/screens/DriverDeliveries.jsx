@@ -46,6 +46,8 @@ const DriverDeliveries = ({ navigation, driverId }) => {
       for (const doc of querySnapshot.docs) {
         const deliveryData = { id: doc.id, ...doc.data() };
         const customerData = await fetchCustomer(deliveryData.customerId);
+        const driversData = await fetchDriver(deliveryData.driverId)
+        deliveryData.driversName = driversData.nome;
         deliveryData.customerName = customerData.nome
         deliveryData.customerAddress = customerData.rua + ", " + customerData.numero + ", " + customerData.bairro + ", " + customerData.cidade;
         if(deliveryData.driverId === driverId) {
@@ -79,6 +81,22 @@ const DriverDeliveries = ({ navigation, driverId }) => {
       return 'NaN';
     }
   };
+
+  const fetchDriver = async (id) => {
+    try {
+      const driverDoc = await getDoc(doc(FIREBASE_DB, 'driver', id));
+      if (driverDoc.exists()) {
+        const dData = driverDoc.data();
+        return dData;
+      } else {
+        return 'Driver Not Found';
+      }
+    } catch (err) {
+      console.error(err);
+      return 'NaN';
+    }
+  };
+
 
   function generateMapsURL(waypoints) {
     const baseUrl = 'https://www.google.com/maps/dir/';

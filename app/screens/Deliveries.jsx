@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { ScrollView, View, TouchableOpacity, Text, StyleSheet } from 'react-native';
-import { Feather } from '@expo/vector-icons';
 import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
 import { FIREBASE_DB } from '../../config/firebaseConfig';
 
@@ -17,6 +16,8 @@ const Deliveries = ({ navigation }) => {
         for (const doc of querySnapshot.docs) {
           const deliveryData = { id: doc.id, ...doc.data() };
           const customerName = await fetchCustomerName(deliveryData.customerId);
+          const driversData = await fetchDriver(deliveryData.driverId)
+          deliveryData.driversName = driversData.nome;
           deliveryData.customerName = customerName; // Add customerName to the deliveryData
           deliveriesData.push(deliveryData);
         }
@@ -26,8 +27,15 @@ const Deliveries = ({ navigation }) => {
         console.error('Error fetching deliveries:', error);
       }
     };
+
     fetchDeliveries();
-  }, []);
+
+    const focusHandler = navigation.addListener('focus', () => {
+      fetchDeliveries();
+    });
+
+    return focusHandler;
+  }, [navigation]);
 
   const fetchCustomerName = async (customerId) => {
     try {
@@ -37,6 +45,21 @@ const Deliveries = ({ navigation }) => {
         return customerData.nome;
       } else {
         return 'Customer Not Found';
+      }
+    } catch (err) {
+      console.error(err);
+      return 'NaN';
+    }
+  };
+
+  const fetchDriver = async (id) => {
+    try {
+      const driverDoc = await getDoc(doc(FIREBASE_DB, 'driver', id));
+      if (driverDoc.exists()) {
+        const dData = driverDoc.data();
+        return dData;
+      } else {
+        return 'Driver Not Found';
       }
     } catch (err) {
       console.error(err);

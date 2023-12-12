@@ -4,7 +4,6 @@ import { FIREBASE_DB } from '../../config/firebaseConfig';
 import { doc, getDocs, getDoc, updateDoc, deleteDoc, collection } from 'firebase/firestore';
 import { useRoute } from "@react-navigation/native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import ModalPicker from './ModalPicker';
 
 const EditDelivery = ({ navigation }) => {
     const [deliveryData, setDeliveryData] = useState(null);
@@ -19,63 +18,12 @@ const EditDelivery = ({ navigation }) => {
       userId: '',
     });
 
-    const fetchCustomerName = async (customerId) => {
-      try {
-        const customerDoc = await getDoc(doc(FIREBASE_DB, 'customer', customerId));
-        if (customerDoc.exists()) {
-          const customerData = customerDoc.data();
-          return customerData.nome;
-        } else {
-          return 'Customer Not Found';
-        }
-      } catch (err) {
-        console.error(err);
-        return 'NaN';
-      }
-    };
-
   useEffect(async () => {
-    
+    console.log(delivery);
     setDeliveryData(delivery);
     setEdited(delivery);
   }, []);
-
-
-  const [driverId, setDriverId] = useState("");
-  const [drivers, setDrivers] = useState([]);
-
-  const [customerId, setCustomerId] = useState("");
-  const [customers, setCustomers] = useState([]);
-
-  useEffect(() => {
-    const fetchDrivers = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(FIREBASE_DB, "driver"));
-        setDrivers(
-          querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
-        );
-      } catch (error) {
-        console.error("Error fetching drivers:", error);
-      }
-    };
-    fetchDrivers();
-  }, []);
-
-  useEffect(() => {
-    const fetchCustomers = async () => {
-      try {
-        const querySnapshot = await getDocs(
-          collection(FIREBASE_DB, "customer")
-        );
-        setCustomers(
-          querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
-        );
-      } catch (error) {
-        console.error("Error fetching customers:", error);
-      }
-    };
-    fetchCustomers();
-  }, []);
+  
 
   const handleUpdate = async () => {
     try {
@@ -99,14 +47,6 @@ const EditDelivery = ({ navigation }) => {
     }
   };
 
-  const handleDriverSelect = (selectedOption) => {
-    setDriverId(selectedOption.id);
-  };
-
-  const handleCustomerSelect = async (selectedOption) => {
-    setCustomerId(selectedOption.id);
-  };
-
   if (!deliveryData) {
     return <Text>Loading...</Text>;
   }
@@ -114,15 +54,45 @@ const EditDelivery = ({ navigation }) => {
   return (
 
     <KeyboardAwareScrollView>
-        <ScrollView>
+      <ScrollView style={styles.container}>
+
         <Text style={styles.label}>Cliente:</Text>
-        <ModalPicker options={customers} onSelect={handleCustomerSelect} input={delivery.customerName} />
+        <TextInput
+        style={styles.input}
+        value={edited.customerName}
+        editable={false} selectTextOnFocus={false}
+        />
+
+        <Text style={styles.label}>Motorista:</Text>
+        <TextInput
+        style={styles.input}
+        value={edited.driversName}
+        editable={false} selectTextOnFocus={false}
+        />
+
+        <Text style={styles.label}>Descrição:</Text>
+        <TextInput
+        multiline={true}
+        numberOfLines={4}
+        style={styles.inputMultiline}
+        value={edited.descricao}
+        onChangeText={(text) => setEdited({ ...edited, descricao: text })}
+        />
+
+        <Text style={styles.label}>Valor:</Text>
+        <TextInput
+        style={styles.input}
+        value={edited.valor}
+        keyboardType="numeric"
+        onChangeText={(text) => setEdited({ ...edited, valor: text })}
+        type="number"
+        />  
 
         <TouchableOpacity style={styles.button} onPress={handleUpdate}>
             <Text style={styles.buttonText}>Salvar Alterações</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
-            <Text style={styles.buttonText}>Delete Customer</Text>
+            <Text style={styles.buttonText}>Excluir Entrega</Text>
         </TouchableOpacity>
       </ScrollView>
     </KeyboardAwareScrollView>
@@ -161,6 +131,14 @@ const styles = StyleSheet.create({
         color: 'white',
         fontWeight: 'bold',
         textAlign: 'center'
+    },
+      inputMultiline: {
+      borderWidth: 1,
+      borderColor: "#ccc",
+      borderRadius: 5,
+      padding: 10,
+      marginBottom: 15,
+      minHeight: 100,
     },
 });
 

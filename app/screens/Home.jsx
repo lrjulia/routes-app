@@ -119,8 +119,8 @@ const Home = ({ navigation }) => {
         <>
         <Text style={home.text}>Serviços</Text>
         <Servicos navigation={navigation}/>
-        <Text style={home.text}>Entregas Recentes</Text>
-        <Entregas />
+        {/* <Text style={home.text}>Entregas Recentes</Text>
+        <Entregas /> */}
         </>
       )}
     </View>

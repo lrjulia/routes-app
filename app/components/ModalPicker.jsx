@@ -1,14 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Modal, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 
-const ModalPicker = ({ options, onSelect, input }) => {
+const ModalPicker = ({ options, onSelect }) => {
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedOption, setSelectedOption] = useState('');
-    console.log(input);
-
-    if(input) {
-      setSelectedOption(input);
-    }
 
     const handleSelect = (option) => {
         setSelectedOption(option.nome);
