@@ -1,20 +1,33 @@
-import { View, Text, Button, TouchableOpacity, StyleSheet } from 'react-native';
-import React from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
 import { NavigationProp } from '@react-navigation/native';
 import { FIREBASE_AUTH } from '../../config/firebaseConfig';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Feather } from '@expo/vector-icons'; 
+import {
+  collection,
+  getDocs,
+  addDoc,
+} from "firebase/firestore";
+import { FIREBASE_DB } from '../../config/firebaseConfig';
+import DriverDeliveries from './DriverDeliveries';
+import Loader from '../components/LoaderComponent';
 
 const Servicos = ({navigation}) => {
   return (
     <View style={servicos.container}>
       <TouchableOpacity style={servicos.button} onPress={() => navigation.push('Drivers')} >
-        <MaterialCommunityIcons name="account" size={50} style={servicos.icon} />
+        <MaterialCommunityIcons name="motorbike" size={40} style={servicos.icon} />
         <Text style={servicos.buttonText}>Motoristas</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={servicos.button} onPress={() => navigation.navigate('Map')} >
-        <MaterialCommunityIcons name="package" size={50} style={servicos.icon} />
+      <TouchableOpacity style={servicos.button} onPress={() => navigation.push('Customers')} >
+        <MaterialCommunityIcons name="account" size={40} style={servicos.icon} />
+        <Text style={servicos.buttonText}>Clientes</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={servicos.button} onPress={() => navigation.navigate('Deliveries')} >
+        <MaterialCommunityIcons name="package" size={40} style={servicos.icon} />
         <Text style={servicos.buttonText}>Entregas</Text>
       </TouchableOpacity>
     </View>
@@ -53,12 +66,64 @@ const Entregas = () => {
 }
 
 const Home = ({ navigation }) => {
+
+  const [driver, setDriver] = useState(null);
+  const [role, setRole] = useState('');
+
+  useEffect(() => {
+    console.log(392486);
+
+    const fetchDriverData = async () => {
+      try {
+        const auth = FIREBASE_AUTH;
+        const driversCollection = collection(FIREBASE_DB, 'driver');
+        const querySnapshot = await getDocs(driversCollection);
+        const driverData = [];
+        let userEmail =  auth.currentUser.email;
+        userEmail = userEmail.toLowerCase();
+        querySnapshot.forEach((doc) => {
+          driverData.push({ id: doc.id, ...doc.data() });
+        });
+        
+        driverData.map((driver) => {
+          if(driver.email.toLowerCase() == userEmail) {
+            setRole('driver');
+            setDriver(driver.id);
+          }
+        })
+
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching driver data:', error);
+        fetchDriverData();
+      }
+    };
+  
+    fetchDriverData();
+  }, [driver]);
+
+  const [loading, setLoading] = useState(true);
+
   return (
     <View style={home.container}>
-      <Text style={home.text}>Serviços</Text>
-      <Servicos navigation={navigation}/>
-      <Text style={home.text}>Entregas Recentes</Text>
-      <Entregas />
+
+      {loading && (
+        <Loader />
+      )}
+
+      {role === 'driver' ? (
+        <>
+        <Text style={home.text}>Entregas</Text>
+        <DriverDeliveries navigation={navigation}  driverId={driver}/>
+        </>
+      ) : (
+        <>
+        <Text style={home.text}>Serviços</Text>
+        <Servicos navigation={navigation}/>
+        {/* <Text style={home.text}>Entregas Recentes</Text>
+        <Entregas /> */}
+        </>
+      )}
     </View>
   );
 };
@@ -66,7 +131,6 @@ const Home = ({ navigation }) => {
 const home = StyleSheet.create({
   container: {
     display: 'flex',
-    width: '100%',
     height: '100%',
     padding: 10,
   },
@@ -79,18 +143,19 @@ const home = StyleSheet.create({
 
 const servicos = StyleSheet.create({
   container: {
-    display: 'flex',
+    display: 'block',
     gap: 10,
-    flexDirection: 'row',
     alignItems: 'center',
     padding: 10,
   },
   button: {
-    flex: 1,
+    display: 'flex',
+    flexDirection: 'row',
+    alignSelf: 'stretch',
     backgroundColor: 'rgba(51, 164, 111, .1)',
     padding: 30,
     borderRadius: 10,
-    justifyContent: 'center',
+    justifyContent: 'space-around',
   },
   buttonText: {
     color: 'black',
@@ -127,7 +192,7 @@ const entregas = StyleSheet.create({
   icon: {
     textAlign: 'left',
     color: 'rgba(51, 164, 111, 1)',
-    borderColor: 'black',
+    borderColor: '#ccc',
     borderWidth: 1,
     borderRadius: 10,
     padding: 5,

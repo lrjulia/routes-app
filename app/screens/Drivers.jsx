@@ -1,43 +1,86 @@
-import React, { useState } from 'react';
-import { FIREBASE_AUTH } from '../../config/firebaseConfig';
-import { View, TextInput, TouchableOpacity, Image, Text, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, TouchableOpacity, Text, StyleSheet, ScrollView } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons'; 
+import { collection, getDocs } from 'firebase/firestore';
+import { FIREBASE_DB } from '../../config/firebaseConfig';
 
-const Drivers = () => {
-  const [searchText, setSearchText] = useState('');
-  const { image, trackingId, title, price, status } = "packageDa";
+
+const Drivers = ({ navigation }) => {
+  const [drivers, setDrivers] = useState([]);
+
+  useEffect(() => {
+    const fetchDrivers = async () => {
+      try {
+        const driversCollection = collection(FIREBASE_DB, 'driver');
+        const querySnapshot = await getDocs(driversCollection);
+        const driverData = [];
+        querySnapshot.forEach((doc) => {
+          driverData.push({ id: doc.id, ...doc.data() });
+        });
+        setDrivers(driverData);
+      } catch (error) {
+        console.error('Error fetching drivers:', error);
+      }
+    };
+
+    fetchDrivers();
+
+    const focusHandler = navigation.addListener('focus', () => {
+      fetchDrivers();
+    });
+
+    return focusHandler;
+  }, [navigation]); 
 
   return (
-    <TouchableOpacity style={{ flex: 1, padding: 10, borderColor: '#ddd', borderWidth: 1, borderRadius: 10, marginVertical: 5 }}>
-      <View style={{ flexDirection: 'row' }}>
-        <Image source={{ uri: image }} style={{ width: 80, height: 80, resizeMode: 'cover' }} />
-        <View style={{ flex: 1, marginLeft: 10 }}>
-          <Text style={{ fontSize: 16, fontWeight: 'bold' }}>{title}</Text>
-          <Text style={{ fontSize: 14, color: '#666' }}>Tracking ID: {trackingId}</Text>
-          <Text style={{ fontSize: 14, color: '#666', marginTop: 5 }}>Price: ${price}</Text>
-          <Text style={{ fontSize: 14, color: status === 'Pending' ? '#F00' : '#0F0', marginTop: 5 }}>Status: {status}</Text>
-        </View>
-      </View>
-    </TouchableOpacity>
+    <ScrollView style={entregas.container}>
+      {drivers.map((driver) => (
+        <TouchableOpacity
+          key={driver.id}
+          style={entregas.button}
+          onPress={() => {
+            navigation.navigate('EditDriver', { driver: driver })
+          }}
+        >
+          <MaterialIcons name="person" size={30} style={entregas.icon} />
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: 16, fontWeight: 'bold', textAlign: 'right' }}>{driver.nome} {driver.sobrenome}</Text>
+            <Text style={{ fontSize: 14, color: '#666', textAlign: 'right' }}>ID: {driver.id}</Text>
+            {/* Display other driver information as needed */}
+          </View>
+        </TouchableOpacity>
+      ))}
+    </ScrollView>
   );
 };
 
-const styles = StyleSheet.create({
+const entregas = StyleSheet.create({
   container: {
+    display: 'block',
+    padding: 10,
+  },
+  button: {
+    display: 'flex',
     flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F5F5F5',
-    borderRadius: 8,
-    margin: 10,
-    paddingHorizontal: 10,
+    backgroundColor: '#fff',
+    padding: 30,
+    borderRadius: 10,
+    marginBottom: 10,
   },
-  searchIcon: {
-    marginRight: 10,
-  },
-  input: {
-    flex: 1,
-    height: 40,
+  buttonText: {
     color: 'black',
+    fontWeight: 'bold',
+    fontSize: 16,
+    padding: 10,
+  },
+  icon: {
+    textAlign: 'left',
+    color: '#ccc',
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 10,
+    padding: 5,
+    marginRight: 5,
   },
 });
 
