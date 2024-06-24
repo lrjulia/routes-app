@@ -79,13 +79,14 @@ const Home = ({ navigation }) => {
         const driversCollection = collection(FIREBASE_DB, 'driver');
         const querySnapshot = await getDocs(driversCollection);
         const driverData = [];
-        
+        let userEmail =  auth.currentUser.email;
+        userEmail = userEmail.toLowerCase();
         querySnapshot.forEach((doc) => {
           driverData.push({ id: doc.id, ...doc.data() });
         });
-  
+        
         driverData.map((driver) => {
-          if(driver.email == auth.currentUser.email) {
+          if(driver.email.toLowerCase() == userEmail) {
             setRole('driver');
             setDriver(driver.id);
           }
